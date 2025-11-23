@@ -3,116 +3,334 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Car Comparison</title>
+  <title>AutoCompare — Car Specs & Comparison</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f4; }
-    .container { max-width: 900px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; }
-    h1 { text-align: center; }
-    select { width: 100%; padding: 10px; margin: 10px 0; }
-    .car-display { margin-top: 20px; }
-    img { width: 100%; max-width: 400px; border-radius: 8px; }
+    :root{
+      --bg:#0b0b0b; --card:#0f0f10; --accent:#e61414; --muted:#bfbfbf; --glass: rgba(255,255,255,0.04);
+      --maxw:1100px;
+    }
+    /* Carbon-fiber style background */
+    body{
+      margin:0; font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(135deg,#060607 0%, #0a0a0b 100%);
+      color:#e6e6e6; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    }
+    .topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.25));box-shadow:0 4px 20px rgba(0,0,0,0.6);}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,#111,#000);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent);box-shadow:0 2px 10px rgba(0,0,0,0.6)}
+    .title{font-size:20px;font-weight:700}
+    .subtitle{font-size:12px;color:var(--muted);}
+
+    .container{max-width:var(--maxw);margin:28px auto;padding:22px;border-radius:14px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:0 10px 40px rgba(0,0,0,0.6);}    
+
+    .controls{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+    label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
+    select, button{width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:var(--card);color:#fff;font-size:14px}
+    select:focus, button:focus{outline:2px solid rgba(230,20,20,0.12)}
+
+    .main{display:grid;grid-template-columns:1fr 380px;gap:18px}
+    .results{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:14px;border-radius:10px;min-height:400px}
+    .car-card{display:flex;gap:12px;align-items:center;padding:10px;border-radius:8px;margin-bottom:10px;background:linear-gradient(90deg, rgba(255,255,255,0.01), transparent);border:1px solid rgba(255,255,255,0.03)}
+    .car-thumb{width:140px;height:80px;border-radius:6px;overflow:hidden;flex:0 0 140px;background:#222;display:flex;align-items:center;justify-content:center}
+    .car-thumb img{width:100%;height:100%;object-fit:cover}
+    .car-info{flex:1}
+    .car-info h3{margin:0;font-size:16px}
+    .car-stats{font-size:13px;color:var(--muted);margin-top:6px}
+    .add-btn{padding:8px 10px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.06);cursor:pointer}
+
+    .compare-panel{background:linear-gradient(180deg, rgba(0,0,0,0.2), rgba(0,0,0,0.1));padding:14px;border-radius:10px;position:sticky;top:22px;height:fit-content}
+    .compare-list{display:flex;flex-direction:column;gap:10px}
+    .compare-item{display:flex;gap:10px;align-items:center}
+    .compare-item img{width:64px;height:38px;object-fit:cover;border-radius:6px}
+    .compare-actions{display:flex;gap:8px;margin-top:10px}
+    .primary{background:var(--accent);border:none;color:#fff}
+
+    footer{margin-top:18px;color:var(--muted);font-size:13px;text-align:center}
+
+    /* responsive */
+    @media(max-width:980px){.controls{grid-template-columns:repeat(2,1fr)}.main{grid-template-columns:1fr}}
+
   </style>
 </head>
 <body>
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">AC</div>
+      <div>
+        <div class="title">AutoCompare</div>
+        <div class="subtitle">Compare engine specs, horsepower & more</div>
+      </div>
+    </div>
+    <div>
+      <button onclick="downloadCSV()" class="add-btn">Export CSV</button>
+    </div>
+  </div>
+
   <div class="container">
-    <h1>Car Comparison Tool</h1>
+    <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
+      <h2 style="margin:0">Find & Compare Cars</h2>
+      <div style="color:var(--muted);font-size:13px">Car-themed design · Large model database</div>
+    </div>
 
-    <label>Brand:</label>
-    <select id="brand">
-      <option value="">Select Brand</option>
-      <option value="jeep">Jeep</option>
-      <option value="ford">Ford</option>
-      <option value="chevy">Chevy</option>
-      <option value="toyota">Toyota</option>
-      <option value="honda">Honda</option>
-      <option value="nissan">Nissan</option>
-      <option value="dodge">Dodge</option>
-      <option value="ram">Ram</option>
-      <option value="gmc">GMC</option>
-      <option value="vw">Volkswagen</option>
-      <option value="subaru">Subaru</option>
-      <option value="hyundai">Hyundai</option>
-      <option value="kia">Kia</option>
-      <option value="bmw">BMW</option>
-      <option value="mercedes">Mercedes</option>
-      <option value="audi">Audi</option>
-      <option value="lexus">Lexus</option>
-      <option value="acura">Acura</option>
-      <option value="infiniti">Infiniti</option>
-      <option value="tesla">Tesla</option>
-    </select>
+    <div class="controls">
+      <div>
+        <label>Brand</label>
+        <select id="brand"></select>
+      </div>
+      <div>
+        <label>Model</label>
+        <select id="model"><option value="">Select Model</option></select>
+      </div>
+      <div>
+        <label>Year</label>
+        <select id="year"><option value="">Select Year</option></select>
+      </div>
+      <div>
+        <label>Filter by</label>
+        <select id="filter">
+          <option value="all">All</option>
+          <option value="hp-100+">Horsepower ≥ 100</option>
+          <option value="hp-300+">Horsepower ≥ 300</option>
+          <option value="v6">V6</option>
+          <option value="v8">V8</option>
+          <option value="electric">Electric</option>
+        </select>
+      </div>
+    </div>
 
-    <label>Model:</label>
-    <select id="model">
-      <option value="">Select Model</option>
-    </select>
+    <div class="main">
+      <div class="results" id="results">
+        <div id="resultsList"></div>
+      </div>
 
-    <label>Year:</label>
-    <select id="year">
-      <option value="">Select Year</option>
-    </select>
+      <aside class="compare-panel">
+        <h3 style="margin:0 0 10px 0">Compare</h3>
+        <div class="compare-list" id="compareList">
+          <div style="color:var(--muted);font-size:13px">Add up to 3 vehicles to compare side-by-side.</div>
+        </div>
+        <div class="compare-actions">
+          <button class="primary" onclick="showComparison()">Compare Now</button>
+          <button class="add-btn" onclick="clearCompare()">Clear</button>
+        </div>
+      </aside>
+    </div>
 
-    <div class="car-display" id="carDisplay"></div>
+    <footer>Built for car lovers · Data examples use placeholder images — real images can be added later</footer>
   </div>
 
   <script>
-    const data = {
-      jeep: {
-        wrangler: {
-          years: {
-            2020: { hp: 285, engine: "3.6L V6", img: "https://via.placeholder.com/400?text=2020+Jeep+Wrangler" },
-            2021: { hp: 285, engine: "3.6L V6", img: "https://via.placeholder.com/400?text=2021+Jeep+Wrangler" }
-          }
-        },
-        cherokee: {
-          years: {
-            2019: { hp: 271, engine: "3.2L V6", img: "https://via.placeholder.com/400?text=2019+Jeep+Cherokee" }
-          }
-        }
+    // Large but reasonable dataset: mainstream brands with several models and years
+    const DATA = {
+      jeep:{
+        wrangler:{years:{2022:{hp:285,engine:'3.6L V6',img:'https://via.placeholder.com/400?text=2022+Jeep+Wrangler'},2021:{hp:285,engine:'3.6L V6',img:'https://via.placeholder.com/400?text=2021+Jeep+Wrangler'},2019:{hp:260,engine:'2.0L I4 Turbo',img:'https://via.placeholder.com/400?text=2019+Jeep+Wrangler'}}},
+        cherokee:{years:{2020:{hp:270,engine:'2.0L I4 Turbo',img:'https://via.placeholder.com/400?text=2020+Jeep+Cherokee'},2018:{hp:271,engine:'3.2L V6',img:'https://via.placeholder.com/400?text=2018+Jeep+Cherokee'}}},
+        grand_cherokee:{years:{2022:{hp:293,engine:'3.6L V6',img:'https://via.placeholder.com/400?text=2022+Jeep+Grand+Cherokee'},2020:{hp:295,engine:'5.7L V8',img:'https://via.placeholder.com/400?text=2020+Jeep+Grand+Cherokee'}}}
       },
-      ford: {
-        mustang: {
-          years: {
-            2020: { hp: 450, engine: "5.0L V8", img: "https://via.placeholder.com/400?text=2020+Ford+Mustang" }
-          }
-        }
+      ford:{
+        f150:{years:{2022:{hp:400,engine:'3.5L V6 Turbo',img:'https://via.placeholder.com/400?text=2022+Ford+F-150'},2019:{hp:290,engine:'3.3L V6',img:'https://via.placeholder.com/400?text=2019+Ford+F-150'}}},
+        mustang:{years:{2021:{hp:450,engine:'5.0L V8',img:'https://via.placeholder.com/400?text=2021+Ford+Mustang'},2018:{hp:310,engine:'2.3L I4 Turbo',img:'https://via.placeholder.com/400?text=2018+Ford+Mustang'}}},
+        explorer:{years:{2020:{hp:300,engine:'2.3L I4 Turbo',img:'https://via.placeholder.com/400?text=2020+Ford+Explorer'},2016:{hp:290,engine:'3.5L V6',img:'https://via.placeholder.com/400?text=2016+Ford+Explorer'}}}
+      },
+      chevy:{
+        silverado:{years:{2022:{hp:420,engine:'6.2L V8',img:'https://via.placeholder.com/400?text=2022+Chevy+Silverado'},2018:{hp:355,engine:'5.3L V8',img:'https://via.placeholder.com/400?text=2018+Chevy+Silverado'}}},
+        camaro:{years:{2021:{hp:455,engine:'6.2L V8',img:'https://via.placeholder.com/400?text=2021+Chevy+Camaro'},2017:{hp:275,engine:'3.6L V6',img:'https://via.placeholder.com/400?text=2017+Chevy+Camaro'}}},
+        equinox:{years:{2020:{hp:170,engine:'1.5L I4',img:'https://via.placeholder.com/400?text=2020+Chevy+Equinox'}}}
+      },
+      toyota:{
+        corolla:{years:{2021:{hp:139,engine:'1.8L I4',img:'https://via.placeholder.com/400?text=2021+Toyota+Corolla'},2016:{hp:132,engine:'1.8L I4',img:'https://via.placeholder.com/400?text=2016+Toyota+Corolla'}}},
+        camry:{years:{2022:{hp:203,engine:'2.5L I4',img:'https://via.placeholder.com/400?text=2022+Toyota+Camry'},2018:{hp:268,engine:'3.5L V6',img:'https://via.placeholder.com/400?text=2018+Toyota+Camry'}}},
+        rav4:{years:{2020:{hp:203,engine:'2.5L I4',img:'https://via.placeholder.com/400?text=2020+Toyota+RAV4'}}}
+      },
+      honda:{
+        civic:{years:{2021:{hp:158,engine:'2.0L I4',img:'https://via.placeholder.com/400?text=2021+Honda+Civic'},2016:{hp:174,engine:'1.5L Turbo',img:'https://via.placeholder.com/400?text=2016+Honda+Civic'}}},
+        accord:{years:{2020:{hp:192,engine:'1.5L Turbo',img:'https://via.placeholder.com/400?text=2020+Honda+Accord'},2018:{hp:252,engine:'2.0L Turbo',img:'https://via.placeholder.com/400?text=2018+Honda+Accord'}}},
+        crv:{years:{2019:{hp:190,engine:'1.5L Turbo',img:'https://via.placeholder.com/400?text=2019+Honda+CR-V'}}}
+      },
+      nissan:{
+        altima:{years:{2021:{hp:188,engine:'2.5L I4',img:'https://via.placeholder.com/400?text=2021+Nissan+Altima'}}},
+        maxima:{years:{2018:{hp:300,engine:'3.5L V6',img:'https://via.placeholder.com/400?text=2018+Nissan+Maxima'}}},
+        rogue:{years:{2020:{hp:170,engine:'2.5L I4',img:'https://via.placeholder.com/400?text=2020+Nissan+Rogue'}}}
+      },
+      dodge:{
+        charger:{years:{2021:{hp:292,engine:'3.6L V6',img:'https://via.placeholder.com/400?text=2021+Dodge+Charger'},2019:{hp:485,engine:'6.4L V8',img:'https://via.placeholder.com/400?text=2019+Dodge+Charger'}}},
+        challenger:{years:{2020:{hp:303,engine:'3.6L V6',img:'https://via.placeholder.com/400?text=2020+Dodge+Challenger'}}}
+      },
+      ram:{
+        '1500':{years:{2021:{hp:395,engine:'5.7L V8',img:'https://via.placeholder.com/400?text=2021+Ram+1500'}}}
+      },
+      gmc:{
+        sierra:{years:{2022:{hp:420,engine:'6.2L V8',img:'https://via.placeholder.com/400?text=2022+GMC+Sierra'}}}
+      },
+      vw:{
+        golf:{years:{2019:{hp:147,engine:'1.4L Turbo',img:'https://via.placeholder.com/400?text=2019+VW+Golf'}}},
+        passat:{years:{2016:{hp:174,engine:'1.8L Turbo',img:'https://via.placeholder.com/400?text=2016+VW+Passat'}}}
+      },
+      subaru:{
+        outback:{years:{2020:{hp:182,engine:'2.5L H4',img:'https://via.placeholder.com/400?text=2020+Subaru+Outback'}}},
+        impreza:{years:{2018:{hp:152,engine:'2.0L H4',img:'https://via.placeholder.com/400?text=2018+Subaru+Impreza'}}}
+      },
+      hyundai:{
+        elantra:{years:{2021:{hp:147,engine:'2.0L I4',img:'https://via.placeholder.com/400?text=2021+Hyundai+Elantra'}}},
+        tucson:{years:{2020:{hp:161,engine:'2.0L I4',img:'https://via.placeholder.com/400?text=2020+Hyundai+Tucson'}}}
+      },
+      kia:{
+        forte:{years:{2019:{hp:147,engine:'2.0L I4',img:'https://via.placeholder.com/400?text=2019+Kia+Forte'}}},
+        sorento:{years:{2021:{hp:191,engine:'2.5L I4',img:'https://via.placeholder.com/400?text=2021+Kia+Sorento'}}}
+      },
+      bmw:{
+        '3_series':{years:{2021:{hp:255,engine:'2.0L Turbo I4',img:'https://via.placeholder.com/400?text=2021+BMW+3+Series'}}},
+        '5_series':{years:{2020:{hp:248,engine:'2.0L Turbo I4',img:'https://via.placeholder.com/400?text=2020+BMW+5+Series'}}}
+      },
+      mercedes:{
+        c_class:{years:{2019:{hp:255,engine:'2.0L Turbo I4',img:'https://via.placeholder.com/400?text=2019+Mercedes+C+Class'}}}
+      },
+      audi:{
+        a4:{years:{2020:{hp:188,engine:'2.0L Turbo I4',img:'https://via.placeholder.com/400?text=2020+Audi+A4'}}}
+      },
+      lexus:{
+        rx:{years:{2021:{hp:295,engine:'3.5L V6',img:'https://via.placeholder.com/400?text=2021+Lexus+RX'}}}
+      },
+      acura:{
+        integra:{years:{2022:{hp:200,engine:'1.5L Turbo',img:'https://via.placeholder.com/400?text=2022+Acura+Integra'}}}
+      },
+      infiniti:{
+        q50:{years:{2018:{hp:300,engine:'3.0L Turbo V6',img:'https://via.placeholder.com/400?text=2018+Infiniti+Q50'}}}
+      },
+      tesla:{
+        model_s:{years:{2022:{hp:670,engine:'Electric',img:'https://via.placeholder.com/400?text=2022+Tesla+Model+S'}}},
+        model_3:{years:{2021:{hp:283,engine:'Electric',img:'https://via.placeholder.com/400?text=2021+Tesla+Model+3'}}}
       }
     };
 
-    const brandSel = document.getElementById("brand");
-    const modelSel = document.getElementById("model");
-    const yearSel = document.getElementById("year");
-    const display = document.getElementById("carDisplay");
+    // populate brand select
+    const brandSel = document.getElementById('brand');
+    const modelSel = document.getElementById('model');
+    const yearSel = document.getElementById('year');
+    const filterSel = document.getElementById('filter');
+    const resultsList = document.getElementById('resultsList');
+    const compareList = document.getElementById('compareList');
 
-    brandSel.onchange = () => {
-      modelSel.innerHTML = '<option value="">Select Model</option>';
-      yearSel.innerHTML = '<option value="">Select Year</option>';
-      display.innerHTML = '';
-      const models = data[brandSel.value];
-      if (!models) return;
-      Object.keys(models).forEach(m => {
-        modelSel.innerHTML += `<option value="${m}">${m}</option>`;
-      });
+    function init(){
+      brandSel.innerHTML = '<option value="">All Brands</option>' + Object.keys(DATA).map(b=>`<option value="${b}">${pretty(b)}</option>`).join('');
+      renderResults();
+    }
+
+    function pretty(s){ return s.replace(/_/g,' ').replace(/\b\w/g,ch=>ch.toUpperCase()); }
+
+    brandSel.onchange = ()=>{
+      modelSel.innerHTML = '<option value="">All Models</option>';
+      yearSel.innerHTML = '<option value="">All Years</option>';
+      const brand = brandSel.value; if(!brand) return renderResults();
+      Object.keys(DATA[brand]).forEach(m=> modelSel.innerHTML += `<option value="${m}">${pretty(m)}</option>`);
+      renderResults();
     };
 
-    modelSel.onchange = () => {
-      yearSel.innerHTML = '<option value="">Select Year</option>';
-      display.innerHTML = '';
-      const years = data[brandSel.value][modelSel.value].years;
-      Object.keys(years).forEach(y => {
-        yearSel.innerHTML += `<option value="${y}">${y}</option>`;
-      });
+    modelSel.onchange = ()=>{
+      yearSel.innerHTML = '<option value="">All Years</option>';
+      const brand = brandSel.value; if(!brand) return renderResults();
+      const model = modelSel.value; if(!model) return renderResults();
+      Object.keys(DATA[brand][model].years).forEach(y=> yearSel.innerHTML += `<option value="${y}">${y}</option>`);
+      renderResults();
     };
 
-    yearSel.onchange = () => {
-      const car = data[brandSel.value][modelSel.value].years[yearSel.value];
-      display.innerHTML = `
-        <h2>${yearSel.value} ${modelSel.value.charAt(0).toUpperCase() + modelSel.value.slice(1)}</h2>
-        <p><strong>Horsepower:</strong> ${car.hp}</p>
-        <p><strong>Engine:</strong> ${car.engine}</p>
-        <img src="${car.img}" alt="Car Image" />
+    yearSel.onchange = renderResults;
+    filterSel.onchange = renderResults;
+
+    function renderResults(){
+      const brand = brandSel.value; const model = modelSel.value; const year = yearSel.value; const filter = filterSel.value;
+      let items = [];
+      for(const b of Object.keys(DATA)){
+        if(brand && b!==brand) continue;
+        for(const m of Object.keys(DATA[b])){
+          if(model && m!==model) continue;
+          for(const y of Object.keys(DATA[b][m].years)){
+            if(year && y!==year) continue;
+            const car = Object.assign({brand:b,model:m,year:y}, DATA[b][m].years[y]);
+            if(!passesFilter(car,filter)) continue;
+            items.push(car);
+          }
+        }
+      }
+      if(items.length===0){ resultsList.innerHTML = '<div style="color:var(--muted);padding:20px">No results. Try different filters.</div>'; return; }
+      resultsList.innerHTML = items.map(c=> renderCard(c)).join('');
+    }
+
+    function passesFilter(car,filter){ if(!filter || filter==='all') return true; if(filter==='v6') return /v6/i.test(car.engine); if(filter==='v8') return /v8/i.test(car.engine); if(filter==='electric') return /electric/i.test(car.engine); if(filter==='hp-100+') return car.hp>=100; if(filter==='hp-300+') return car.hp>=300; return true; }
+
+    function renderCard(c){
+      return `
+      <div class="car-card">
+        <div class="car-thumb"><img src="${c.img}" alt="${pretty(c.brand)} ${pretty(c.model)}"/></div>
+        <div class="car-info">
+          <h3>${c.year} ${pretty(c.brand)} ${pretty(c.model)}</h3>
+          <div class="car-stats">${c.engine} · <strong>${c.hp} hp</strong></div>
+        </div>
+        <div>
+          <button class="add-btn" onclick='addToCompare(${JSON.stringify(c).replace(/'/g,"\\'")})'>Add</button>
+        </div>
+      </div>
       `;
-    };
+    }
+
+    // Compare logic
+    const COMPARE = [];
+    function addToCompare(car){
+      if(COMPARE.find(c=>c.brand===car.brand && c.model===car.model && c.year===car.year)) return; // already
+      if(COMPARE.length>=3){ alert('You can compare up to 3 cars at once.'); return; }
+      COMPARE.push(car);
+      refreshCompareUI();
+    }
+    function refreshCompareUI(){
+      if(COMPARE.length===0){ compareList.innerHTML = '<div style="color:var(--muted);font-size:13px">Add vehicles to compare.</div>'; return; }
+      compareList.innerHTML = COMPARE.map((c,idx)=>`
+        <div class="compare-item">
+          <img src="${c.img}" alt="${c.model}" />
+          <div style="flex:1">
+            <div style="font-weight:700">${c.year} ${pretty(c.brand)} ${pretty(c.model)}</div>
+            <div style="color:var(--muted);font-size:13px">${c.engine} · ${c.hp} hp</div>
+          </div>
+          <div>
+            <button class="add-btn" onclick="removeCompare(${idx})">Remove</button>
+          </div>
+        </div>
+      `).join('');
+    }
+    function removeCompare(i){ COMPARE.splice(i,1); refreshCompareUI(); }
+    function clearCompare(){ COMPARE.length=0; refreshCompareUI(); }
+
+    function showComparison(){
+      if(COMPARE.length<2){ alert('Add at least 2 cars to compare.'); return; }
+      // build simple comparison table in a new window
+      let html = `<html><head><title>Comparison</title><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="font-family:Arial;padding:20px;color:#111;background:#fff">`;
+      html += `<h2>Vehicle Comparison</h2><table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%"><tr><th>Spec</th>`;
+      COMPARE.forEach(c=> html += `<th>${c.year} ${pretty(c.brand)} ${pretty(c.model)}</th>`);
+      html += `</tr>`;
+      const keys = ['engine','hp'];
+      keys.forEach(k=>{ html += `<tr><td style="font-weight:700">${k.toUpperCase()}</td>`; COMPARE.forEach(c=> html += `<td>${c[k]}</td>`); html += `</tr>`; });
+      html += `</table></body></html>`;
+      const w = window.open('','_blank'); w.document.write(html); w.document.close();
+    }
+
+    // export CSV of compare
+    function downloadCSV(){
+      let rows = ['Brand,Model,Year,Engine,HP'];
+      for(const b of Object.keys(DATA)){
+        for(const m of Object.keys(DATA[b])){
+          for(const y of Object.keys(DATA[b][m].years)){
+            const item = DATA[b][m].years[y];
+            rows.push(`${pretty(b)},${pretty(m)},${y},"${item.engine}",${item.hp}`);
+          }
+        }
+      }
+      const csv = rows.join('\n');
+      const blob = new Blob([csv],{type:'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download='cars.csv'; a.click(); URL.revokeObjectURL(url);
+    }
+
+    // init
+    init();
+    refreshCompareUI();
   </script>
 </body>
 </html>

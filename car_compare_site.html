@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Car Comparison</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f4; }
+    .container { max-width: 900px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; }
+    h1 { text-align: center; }
+    select { width: 100%; padding: 10px; margin: 10px 0; }
+    .car-display { margin-top: 20px; }
+    img { width: 100%; max-width: 400px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Car Comparison Tool</h1>
+
+    <label>Brand:</label>
+    <select id="brand">
+      <option value="">Select Brand</option>
+      <option value="jeep">Jeep</option>
+      <option value="ford">Ford</option>
+      <option value="chevy">Chevy</option>
+      <option value="toyota">Toyota</option>
+      <option value="honda">Honda</option>
+      <option value="nissan">Nissan</option>
+      <option value="dodge">Dodge</option>
+      <option value="ram">Ram</option>
+      <option value="gmc">GMC</option>
+      <option value="vw">Volkswagen</option>
+      <option value="subaru">Subaru</option>
+      <option value="hyundai">Hyundai</option>
+      <option value="kia">Kia</option>
+      <option value="bmw">BMW</option>
+      <option value="mercedes">Mercedes</option>
+      <option value="audi">Audi</option>
+      <option value="lexus">Lexus</option>
+      <option value="acura">Acura</option>
+      <option value="infiniti">Infiniti</option>
+      <option value="tesla">Tesla</option>
+    </select>
+
+    <label>Model:</label>
+    <select id="model">
+      <option value="">Select Model</option>
+    </select>
+
+    <label>Year:</label>
+    <select id="year">
+      <option value="">Select Year</option>
+    </select>
+
+    <div class="car-display" id="carDisplay"></div>
+  </div>
+
+  <script>
+    const data = {
+      jeep: {
+        wrangler: {
+          years: {
+            2020: { hp: 285, engine: "3.6L V6", img: "https://via.placeholder.com/400?text=2020+Jeep+Wrangler" },
+            2021: { hp: 285, engine: "3.6L V6", img: "https://via.placeholder.com/400?text=2021+Jeep+Wrangler" }
+          }
+        },
+        cherokee: {
+          years: {
+            2019: { hp: 271, engine: "3.2L V6", img: "https://via.placeholder.com/400?text=2019+Jeep+Cherokee" }
+          }
+        }
+      },
+      ford: {
+        mustang: {
+          years: {
+            2020: { hp: 450, engine: "5.0L V8", img: "https://via.placeholder.com/400?text=2020+Ford+Mustang" }
+          }
+        }
+      }
+    };
+
+    const brandSel = document.getElementById("brand");
+    const modelSel = document.getElementById("model");
+    const yearSel = document.getElementById("year");
+    const display = document.getElementById("carDisplay");
+
+    brandSel.onchange = () => {
+      modelSel.innerHTML = '<option value="">Select Model</option>';
+      yearSel.innerHTML = '<option value="">Select Year</option>';
+      display.innerHTML = '';
+      const models = data[brandSel.value];
+      if (!models) return;
+      Object.keys(models).forEach(m => {
+        modelSel.innerHTML += `<option value="${m}">${m}</option>`;
+      });
+    };
+
+    modelSel.onchange = () => {
+      yearSel.innerHTML = '<option value="">Select Year</option>';
+      display.innerHTML = '';
+      const years = data[brandSel.value][modelSel.value].years;
+      Object.keys(years).forEach(y => {
+        yearSel.innerHTML += `<option value="${y}">${y}</option>`;
+      });
+    };
+
+    yearSel.onchange = () => {
+      const car = data[brandSel.value][modelSel.value].years[yearSel.value];
+      display.innerHTML = `
+        <h2>${yearSel.value} ${modelSel.value.charAt(0).toUpperCase() + modelSel.value.slice(1)}</h2>
+        <p><strong>Horsepower:</strong> ${car.hp}</p>
+        <p><strong>Engine:</strong> ${car.engine}</p>
+        <img src="${car.img}" alt="Car Image" />
+      `;
+    };
+  </script>
+</body>
+</html>
